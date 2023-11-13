@@ -13870,7 +13870,7 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
 
     // proto based limitations
     if (InventoryResult res = CanEquipUniqueItem(pProto, eslot, limit_count))
-        return res;
+        return res;         // TODO: Check if this is a bag swap
 
     // check unique-equipped on gems
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + 3; ++enchant_slot)

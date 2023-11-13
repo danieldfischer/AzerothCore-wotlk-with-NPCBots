@@ -760,6 +760,35 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
 bool Player::HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot) const
 {
     uint32 tempcount = 0;
+    if (sObjectMgr->GetItemTemplate(item)->ContainerSlots > 0)
+    {
+        // Check bags
+        // TODO: Won't all bag swapping. Need to fix in calling function.
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+        {
+            if (Bag* pBag = GetBagByPos(i))
+            {
+                if (pBag->GetEntry() == item)
+                {
+                    return true;
+                }
+            }
+        }
+        // Check bank bags
+        // TODO: Can't find code that prevents it from the bank side, but TBH this part isn't as big of a deal.
+/*        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
+        {
+            if (Bag* pBag = GetBagByPos(i))
+            {
+                if (pBag->GetEntry() == item)
+                {
+                    ChatHandler(GetSession()).PSendSysMessage("You already have this bag equipped in your bank!");
+                    return true;
+                }
+            }
+        } */
+    }
+
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
         if (i == except_slot)
