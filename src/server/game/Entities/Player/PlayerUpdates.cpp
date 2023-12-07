@@ -729,6 +729,7 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue,
         sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
     sScriptMgr->OnUpdateGatheringSkill(this, SkillId, SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25, gathering_skill_gain);
 
+    bool result = false;
     // For skinning and Mining chance decrease with level. 1-74 - no decrease,
     // 75-149 - 2 times, 225-299 - 8 times
     switch (SkillId)
@@ -737,38 +738,39 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue,
     case SKILL_LOCKPICKING:
     case SKILL_JEWELCRAFTING:
     case SKILL_INSCRIPTION:
-        return UpdateSkillPro(SkillId,
+        result = UpdateSkillPro(SkillId,
                               SkillGainChance(SkillValue, RedLevel + 100,
                                               RedLevel + 50, RedLevel + 25) *
                                   Multiplicator,
                               gathering_skill_gain);
+        break;
     case SKILL_SKINNING:
         if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS) == 0)
-            return UpdateSkillPro(SkillId,
+            result = UpdateSkillPro(SkillId,
                                   SkillGainChance(SkillValue, RedLevel + 100,
                                                   RedLevel + 50,
                                                   RedLevel + 25) *
                                       Multiplicator,
                                   gathering_skill_gain);
         else
-            return UpdateSkillPro(
-                SkillId,
+            result = UpdateSkillPro(SkillId,
                 (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50,
                                  RedLevel + 25) *
                  Multiplicator) >>
                     (SkillValue /
                      sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS)),
                 gathering_skill_gain);
+        break;
     case SKILL_MINING:
         if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS) == 0)
-            return UpdateSkillPro(SkillId,
+            result = UpdateSkillPro(SkillId,
                                   SkillGainChance(SkillValue, RedLevel + 100,
                                                   RedLevel + 50,
                                                   RedLevel + 25) *
                                       Multiplicator,
                                   gathering_skill_gain);
         else
-            return UpdateSkillPro(
+            result = UpdateSkillPro(
                 SkillId,
                 (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50,
                                  RedLevel + 25) *
@@ -777,7 +779,9 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue,
                      sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS)),
                 gathering_skill_gain);
     }
-    return false;
+    sScriptMgr->AfterUpdateGatheringSkill(this, SkillId, SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25, result);
+
+    return result;
 }
 
 bool Player::UpdateCraftSkill(uint32 spellid)
@@ -806,8 +810,8 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             uint32 craft_skill_gain =
                 sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
             sScriptMgr->OnUpdateCraftingSkill(this, _spell_idx->second, SkillValue, craft_skill_gain);
-
-            return UpdateSkillPro(
+            
+            bool result = UpdateSkillPro(
                 _spell_idx->second->SkillLine,
                 SkillGainChance(SkillValue,
                                 _spell_idx->second->TrivialSkillLineRankHigh,
@@ -816,6 +820,9 @@ bool Player::UpdateCraftSkill(uint32 spellid)
                                     2,
                                 _spell_idx->second->TrivialSkillLineRankLow),
                 craft_skill_gain);
+            sScriptMgr->AfterUpdateCraftingSkill(this, _spell_idx->second, SkillValue, result);
+
+            return result;
         }
     }
     return false;

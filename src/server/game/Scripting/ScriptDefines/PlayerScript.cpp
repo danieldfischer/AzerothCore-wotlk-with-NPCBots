@@ -1028,11 +1028,25 @@ void ScriptMgr::OnUpdateGatheringSkill(Player *player, uint32 skillId, uint32 cu
     });
 }
 
+void ScriptMgr::AfterUpdateGatheringSkill(Player* player, uint32 skillId, uint32 currentLevel, uint32 gray, uint32 green, uint32 yellow, bool gain) {
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+        {
+            script->AfterUpdateGatheringSkill(player, skillId, currentLevel, gray, green, yellow, gain);
+        });
+}
+
 void ScriptMgr::OnUpdateCraftingSkill(Player *player, SkillLineAbilityEntry const* skill, uint32 currentLevel, uint32& gain) {
     ExecuteScript<PlayerScript>([&](PlayerScript* script)
     {
         script->OnUpdateCraftingSkill(player, skill, currentLevel, gain);
     });
+}
+
+void ScriptMgr::AfterUpdateCraftingSkill(Player* player, SkillLineAbilityEntry const* skill, uint32 currentLevel, bool gain) {
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+        {
+            script->AfterUpdateCraftingSkill(player, skill, currentLevel, gain);
+        });
 }
 
 bool ScriptMgr::OnUpdateFishingSkill(Player* player, int32 skill, int32 zone_skill, int32 chance, int32 roll)
