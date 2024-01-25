@@ -333,6 +333,7 @@ public:
      * @param gain Contains the amount of points that should be added to the Player
      */
     virtual void OnUpdateGatheringSkill(Player* /*player*/, uint32 /*skill_id*/, uint32 /*current*/, uint32 /*gray*/, uint32 /*green*/, uint32 /*yellow*/, uint32& /*gain*/) { }
+    virtual void AfterUpdateGatheringSkill(Player* player, uint32 skill_id, uint32 current, uint32 gray, uint32 green, uint32 yellow, bool gain) { }
 
     /**
      * @brief This hook is called before crafting skill gain is applied to the character.
@@ -343,8 +344,11 @@ public:
      * @param gain Contains the amount of points that should be added to the Player
      */
     virtual void OnUpdateCraftingSkill(Player* /*player*/, SkillLineAbilityEntry const* /*skill*/, uint32 /*current_level*/, uint32& /*gain*/) { }
+    virtual void AfterUpdateCraftingSkill(Player* player, SkillLineAbilityEntry const* skill, uint32 current_level, bool gain) { }
+
 
     [[nodiscard]] virtual bool OnUpdateFishingSkill(Player* /*player*/, int32 /*skill*/, int32 /*zone_skill*/, int32 /*chance*/, int32 /*roll*/) { return true; }
+    virtual void AfterUpdateFishingSkill(Player* /*player*/, bool /*gain*/) { }
 
     [[nodiscard]] virtual bool CanAreaExploreAndOutdoor(Player* /*player*/) { return true; }
 

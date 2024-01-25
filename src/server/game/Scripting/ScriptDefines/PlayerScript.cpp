@@ -1081,6 +1081,15 @@ bool ScriptMgr::OnUpdateFishingSkill(Player* player, int32 skill, int32 zone_ski
     return true;
 }
 
+void ScriptMgr::AfterUpdateFishingSkill(Player* player, bool gain)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+        {
+            script->AfterUpdateFishingSkill(player, gain);
+        });
+}
+
+
 bool ScriptMgr::CanAreaExploreAndOutdoor(Player* player)
 {
     auto ret = IsValidBoolScript<PlayerScript>([&](PlayerScript* script)

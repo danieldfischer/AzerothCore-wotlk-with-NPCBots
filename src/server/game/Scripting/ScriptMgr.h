@@ -404,8 +404,11 @@ public: /* PlayerScript */
     bool CanRepopAtGraveyard(Player* player);
     void OnGetMaxSkillValue(Player* player, uint32 skill, int32& result, bool IsPure);
     void OnUpdateGatheringSkill(Player* player, uint32 skillId, uint32 currentLevel, uint32 gray, uint32 green, uint32 yellow, uint32& gain);
+    void AfterUpdateGatheringSkill(Player* player, uint32 skill_id, uint32 current, uint32 gray, uint32 green, uint32 yellow, bool gain);
     void OnUpdateCraftingSkill(Player* player, SkillLineAbilityEntry const* skill, uint32 currentLevel, uint32& gain);
+    void AfterUpdateCraftingSkill(Player* player, SkillLineAbilityEntry const* skill, uint32 current_level, bool gain);
     bool OnUpdateFishingSkill(Player* player, int32 skill, int32 zone_skill, int32 chance, int32 roll);
+    void AfterUpdateFishingSkill(Player* player, bool gain);
     bool CanAreaExploreAndOutdoor(Player* player);
     void OnVictimRewardBefore(Player* player, Player* victim, uint32& killer_title, uint32& victim_title);
     void OnVictimRewardAfter(Player* player, Player* victim, uint32& killer_title, uint32& victim_rank, float& honor_f);

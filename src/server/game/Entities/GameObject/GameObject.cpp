@@ -1774,7 +1774,7 @@ void GameObject::Use(Unit* user)
 
                             if (sScriptMgr->OnUpdateFishingSkill(player, skill, zone_skill, chance, roll))
                             {
-                                player->UpdateFishingSkill();
+                                sScriptMgr->AfterUpdateFishingSkill(player, player->UpdateFishingSkill());
                             }
                             // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
                             if (chance >= roll)
