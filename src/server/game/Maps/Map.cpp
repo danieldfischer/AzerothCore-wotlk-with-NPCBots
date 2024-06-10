@@ -709,9 +709,6 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Acore::Objec
     if (!obj->IsPositionValid())
         return;
 
-    if (obj->GetGridActivationRange() <= 0.0f) // pussywizard: gameobjects for example are on active lists, but range is equal to 0 (they just prevent grid unloading)
-        return;
-
     // Update mobs/objects in ALL visible cells around object!
     CellArea area = Cell::CalculateCellArea(obj->GetPositionX(), obj->GetPositionY(), obj->GetGridActivationRange());
 
@@ -1043,6 +1040,21 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
     }
     else
         RemoveCreatureFromMoveList(creature);
+
+    //npcbot:
+    if (creature->IsNPCBotOrPet() && !creature->GetVehicle())
+    {
+        float old_orientation = creature->GetOrientation();
+        float current_z = creature->GetPositionZ();
+        bool turn = (old_orientation != o);
+        bool relocated = (creature->GetPositionX() != x || creature->GetPositionY() != y || current_z != z);
+        uint32 mask = 0;
+        if (turn) mask |= AURA_INTERRUPT_FLAG_TURNING;
+        if (relocated) mask |= AURA_INTERRUPT_FLAG_MOVE;
+        if (mask)
+            creature->RemoveAurasWithInterruptFlags(mask);
+    }
+    //end npcbot
 
     creature->Relocate(x, y, z, o);
     if (creature->IsVehicle())
@@ -2450,6 +2462,14 @@ bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, floa
     if (!sWorld->getBoolConfig(CONFIG_VMAP_BLIZZLIKE_PVP_LOS))
     {
         if (IsBattlegroundOrArena())
+        {
+            ignoreFlags = VMAP::ModelIgnoreFlags::Nothing;
+        }
+    }
+
+    if (!sWorld->getBoolConfig(CONFIG_VMAP_BLIZZLIKE_LOS_OPEN_WORLD))
+    {
+        if (IsWorldMap())
         {
             ignoreFlags = VMAP::ModelIgnoreFlags::Nothing;
         }
