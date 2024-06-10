@@ -604,14 +604,41 @@ void ScriptMgr::OnUpdateGatheringSkill(Player *player, uint32 skillId, uint32 cu
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_UPDATE_GATHERING_SKILL, script->OnUpdateGatheringSkill(player, skillId, currentLevel, gray, green, yellow, gain));
 }
 
+void ScriptMgr::AfterUpdateGatheringSkill(Player* player, uint32 skillId, uint32 currentLevel, uint32 gray, uint32 green, uint32 yellow, bool gain)
+{
+//    TODO: Use CALL_ENABLED_HOOKS, need to add enum
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+            script->AfterUpdateGatheringSkill(player, skillId, currentLevel, gray, green, yellow, gain);
+    });
+}
+
 void ScriptMgr::OnUpdateCraftingSkill(Player *player, SkillLineAbilityEntry const* skill, uint32 currentLevel, uint32& gain)
 {
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_UPDATE_CRAFTING_SKILL, script->OnUpdateCraftingSkill(player, skill, currentLevel, gain));
 }
 
+void ScriptMgr::AfterUpdateCraftingSkill(Player * player, SkillLineAbilityEntry const* skill, uint32 currentLevel, bool gain)
+{
+    //    TODO: Use CALL_ENABLED_HOOKS, need to add enum
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->AfterUpdateCraftingSkill(player, skill, currentLevel, gain);
+    });
+}
+
 bool ScriptMgr::OnUpdateFishingSkill(Player* player, int32 skill, int32 zone_skill, int32 chance, int32 roll)
 {
     CALL_ENABLED_BOOLEAN_HOOKS(PlayerScript, PLAYERHOOK_ON_UPDATE_FISHING_SKILL, !script->OnUpdateFishingSkill(player, skill, zone_skill, chance, roll));
+}
+
+void ScriptMgr::AfterUpdateFishingSkill(Player* player, bool gain)
+{
+    //    TODO: Use CALL_ENABLED_HOOKS, need to add enum
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+        {
+            script->AfterUpdateFishingSkill(player, gain);
+        });
 }
 
 bool ScriptMgr::CanAreaExploreAndOutdoor(Player* player)
