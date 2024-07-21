@@ -1847,7 +1847,8 @@ public:
             }
         }
 
-        ObjectGuid target_guid;
+        ObjectGuid target_guid = ObjectGuid::Empty;
+        bool token_valid = true;
         if (!target_token || target_token == "bot" || target_token == "self")
             target_guid = bot->GetGUID();
         else if (target_token == "me" || target_token == "master")
@@ -1860,40 +1861,49 @@ public:
             target_guid = bot->GetTarget();
         else if (target_token == "mytarget")
             target_guid = owner->GetTarget();
-        else if (target_token == "star")
-            target_guid = owner->GetGroup()->GetTargetIcons()[0];
-        else if (target_token == "circle")
-            target_guid = owner->GetGroup()->GetTargetIcons()[1];
-        else if (target_token == "diamond")
-            target_guid = owner->GetGroup()->GetTargetIcons()[2];
-        else if (target_token == "triangle")
-            target_guid = owner->GetGroup()->GetTargetIcons()[3];
-        else if (target_token == "moon")
-            target_guid = owner->GetGroup()->GetTargetIcons()[4];
-        else if (target_token == "square")
-            target_guid = owner->GetGroup()->GetTargetIcons()[5];
-        else if (target_token == "cross")
-            target_guid = owner->GetGroup()->GetTargetIcons()[6];
-        else if (target_token == "skull")
-            target_guid = owner->GetGroup()->GetTargetIcons()[7];
-        else if (target_token->size() == 1u && owner->GetGroup() && std::isdigit(target_token->front()))
+        else if (Group const* group = owner->GetGroup())
         {
-            uint8 digit = static_cast<uint8>(std::stoi(std::string(*target_token)));
-            switch (digit)
+            if (target_token == "star")
+                target_guid = group->GetTargetIcons()[0];
+            else if (target_token == "circle")
+                target_guid = group->GetTargetIcons()[1];
+            else if (target_token == "diamond")
+                target_guid = group->GetTargetIcons()[2];
+            else if (target_token == "triangle")
+                target_guid = group->GetTargetIcons()[3];
+            else if (target_token == "moon")
+                target_guid = group->GetTargetIcons()[4];
+            else if (target_token == "square")
+                target_guid = group->GetTargetIcons()[5];
+            else if (target_token == "cross")
+                target_guid = group->GetTargetIcons()[6];
+            else if (target_token == "skull")
+                target_guid = group->GetTargetIcons()[7];
+            else if (target_token->size() == 1u && std::isdigit(target_token->front()))
             {
-                case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8:
-                    target_guid = owner->GetGroup()->GetTargetIcons()[digit - 1];
-                    break;
-                default:
-                    target_guid = ObjectGuid::Empty;
-                    break;
+                uint8 digit = static_cast<uint8>(std::stoi(std::string(*target_token)));
+                switch (digit)
+                {
+                    case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8:
+                        target_guid = group->GetTargetIcons()[digit - 1];
+                        break;
+                    default:
+                        token_valid = false;
+                        break;
+                }
             }
+            else
+                token_valid = false;
         }
         else
+            token_valid = false;
+
+        if (!token_valid)
         {
             handler->PSendSysMessage("Invalid target token '%s'!", *target_token);
             handler->SendSysMessage("Valid target tokens:\n    '','bot','self', 'me','master', 'mypet', 'myvehicle', 'target', 'mytarget', "
-                "'star','1', 'circle','2', 'diamond','3', 'triangle','4', 'moon','5', 'square','6', 'cross','7', 'skull','8'");
+                "'star','1', 'circle','2', 'diamond','3', 'triangle','4', 'moon','5', 'square','6', 'cross','7', 'skull','8'"
+                "\nNote that target icons tokens are only available while in group");
             return true;
         }
 
@@ -3137,10 +3147,16 @@ public:
         trans->Append("DROP TEMPORARY TABLE IF EXISTS creature_template_temp_npcbot_create");
         trans->Append("CREATE TEMPORARY TABLE creature_template_temp_npcbot_create ENGINE=MEMORY SELECT * FROM creature_template WHERE entry = (SELECT entry FROM creature_template_npcbot_extras WHERE class = {} LIMIT 1)", uint32(*bclass));
         trans->Append("UPDATE creature_template_temp_npcbot_create SET entry = {}, name = \"{}\"", newentry, namestr.c_str());
-        if (modelId)
-            trans->Append("UPDATE creature_template_temp_npcbot_create SET modelid1 = {}", modelId);
         trans->Append("INSERT INTO creature_template SELECT * FROM creature_template_temp_npcbot_create");
         trans->Append("DROP TEMPORARY TABLE creature_template_temp_npcbot_create");
+        if (modelId)
+        {
+            trans->Append("DROP TEMPORARY TABLE IF EXISTS creature_template_model_temp_npcbot_create");
+            trans->Append("CREATE TEMPORARY TABLE creature_template_model_temp_npcbot_create ENGINE=MEMORY SELECT * FROM creature_template_model WHERE CreatureID = (SELECT entry FROM creature_template_npcbot_extras WHERE class = {} LIMIT 1)", uint32(*bclass));
+            trans->Append("UPDATE creature_template_model_temp_npcbot_create SET CreatureID = {}, CreatureDisplayID = {}", newentry, modelId);
+            trans->Append("INSERT INTO creature_template_model SELECT * FROM creature_template_model_temp_npcbot_create");
+            trans->Append("DROP TEMPORARY TABLE creature_template_model_temp_npcbot_create");
+        }
         trans->Append("REPLACE INTO creature_template_npcbot_extras VALUES ({}, {}, {})", newentry, uint32(*bclass), uint32(*race));
         trans->Append("REPLACE INTO creature_equip_template SELECT {}, 1, ids.itemID1, ids.itemID2, ids.itemID3, -1 FROM (SELECT itemID1, itemID2, itemID3 FROM creature_equip_template WHERE CreatureID = (SELECT entry FROM creature_template_npcbot_extras WHERE class = {} LIMIT 1)) ids", newentry, uint32(*bclass));
         if (can_change_appearance)
