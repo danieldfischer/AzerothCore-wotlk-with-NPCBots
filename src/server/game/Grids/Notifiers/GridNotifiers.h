@@ -33,6 +33,8 @@
 #include "WorldSession.h"
 #include <iostream>
 
+#include "SpellMgr.h"
+
 class Player;
 //class Map;
 
@@ -1102,7 +1104,7 @@ namespace Acore
 
             }
 
-            if (i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr) && i_obj->IsWithinDistInMap(u, i_range))
+            if (i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr) && i_obj->IsWithinDistInMap(u, i_range,true,false))
                 return true;
 
             return false;
@@ -1711,7 +1713,7 @@ namespace Acore
 
         ~LocalizedPacketDo()
         {
-            for (size_t i = 0; i < i_data_cache.size(); ++i)
+            for (std::size_t i = 0; i < i_data_cache.size(); ++i)
                 delete i_data_cache[i];
         }
         void operator()(Player* p);
@@ -1731,8 +1733,8 @@ namespace Acore
 
         ~LocalizedPacketListDo()
         {
-            for (size_t i = 0; i < i_data_cache.size(); ++i)
-                for (size_t j = 0; j < i_data_cache[i].size(); ++j)
+            for (std::size_t i = 0; i < i_data_cache.size(); ++i)
+                for (std::size_t j = 0; j < i_data_cache[i].size(); ++j)
                     delete i_data_cache[i][j];
         }
         void operator()(Player* p);
