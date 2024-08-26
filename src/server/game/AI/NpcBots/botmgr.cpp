@@ -64,6 +64,9 @@ uint8 _dpsTargetIconFlags;
 uint8 _rangedDpsTargetIconFlags;
 uint8 _noDpsTargetIconFlags;
 uint8 _npcBotOwnerExpireMode;
+uint8 _pvpitem;
+uint8 _pvpitem_level245;
+uint8 _pvpitem_level264;
 int32 _botInfoPacketsLimit;
 uint32 _npcBotsCost;
 uint32 _npcBotUpdateDelayBase;
@@ -437,6 +440,9 @@ void BotMgr::LoadConfig(bool reload)
     _bothk_message_enable           = sConfigMgr->GetBoolDefault("NpcBot.HK.Message.Enable", false);
     _bothk_achievements_enable      = sConfigMgr->GetBoolDefault("NpcBot.HK.Achievements.Enable", false);
     _bothk_rate_honor               = sConfigMgr->GetFloatDefault("NpcBot.HK.Rate.Honor", 1.0);
+    _pvpitem                        = sConfigMgr->GetIntDefault("NpcBot.PvPItem.Chance", 20);
+    _pvpitem_level245               = sConfigMgr->GetIntDefault("NpcBot.PvPItem.Level245.Chance", 20);
+    _pvpitem_level264               = sConfigMgr->GetIntDefault("NpcBot.PvPItem.Level264.Chance", 10);
 
     if (reload)
         BotLogger::Log(NPCBOT_LOG_CONFIG_RELOAD, uint32(0));
@@ -1005,6 +1011,21 @@ uint8 BotMgr::GetNpcBotMountLevel100()
 uint8 BotMgr::GetMaxNpcBots(uint8 level)
 {
     return _max_npcbots[std::min<size_t>(BracketsCount - 1, level / 10)];
+}
+
+uint8 BotMgr::GetNpcBotPvPItemChance()
+{
+    return _pvpitem;
+}
+
+uint8 BotMgr::GetNpcBotPvPItemLevel245Chance()
+{
+    return _pvpitem_level245;
+}
+
+uint8 BotMgr::GetNpcBotPvPItemLevel264Chance()
+{
+    return _pvpitem_level264;
 }
 
 int32 BotMgr::GetBotInfoPacketsLimit()

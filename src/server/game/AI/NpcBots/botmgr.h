@@ -208,6 +208,9 @@ class AC_GAME_API BotMgr
         static uint8 GetNpcBotXpReductionStartingNumber();
         static uint8 GetNpcBotMountLevel60();
         static uint8 GetNpcBotMountLevel100();
+        static uint8 GetNpcBotPvPItemChance();
+        static uint8 GetNpcBotPvPItemLevel245Chance();
+        static uint8 GetNpcBotPvPItemLevel264Chance();
         static int32 GetBotInfoPacketsLimit();
         static bool LimitBots(Map const* map);
         static bool CanBotParryWhileCasting(Creature const* bot);

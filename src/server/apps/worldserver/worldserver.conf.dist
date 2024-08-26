@@ -5046,6 +5046,18 @@ NpcBot.HK.Achievements.Enable = 0
 NpcBot.HK.Rate.Honor = 1.0
 
 #
+# Customs
+#
+# Defaults
+#   NpcBot.PvPItem.Chance = 50
+#	NpcBot.PvPItem.Level245.Chance = 20
+#	NpcBot.PvPItem.Level264.Chance = 10
+
+NpcBot.PvPItem.Chance = 50
+NpcBot.PvPItem.Level245.Chance = 20
+NpcBot.PvPItem.Level264.Chance = 10
+
+#
 ###################################################################################################
 
 ###################################################################################################

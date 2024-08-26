@@ -14670,11 +14670,12 @@ void bot_ai::InitEquips()
                 if (!_canEquip(proto, lslot, true))
                     return false;
 
-                if (me->GetLevel() >= DEFAULT_MAX_LEVEL && me->GetMap()->IsBattlegroundOrArena() && Rand() < 50)
+                if (me->GetLevel() >= DEFAULT_MAX_LEVEL && me->GetMap()->IsBattlegroundOrArena() && Rand() < BotMgr::GetNpcBotPvPItemChance())
                 {
-                    if (Rand() < 20 && proto->ItemLevel < 245)
+                    // Converted to config
+                    if (Rand() < BotMgr::GetNpcBotPvPItemLevel245Chance() && proto->ItemLevel < 245)
                         return false;
-                    if (Rand() < 10 && proto->ItemLevel < 264)
+                    if (Rand() < BotMgr::GetNpcBotPvPItemLevel264Chance() && proto->ItemLevel < 264)
                         return false;
 
                     switch (lslot)
