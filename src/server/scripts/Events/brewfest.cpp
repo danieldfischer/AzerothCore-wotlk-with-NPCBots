@@ -392,7 +392,16 @@ struct npc_dark_iron_attack_generator : public ScriptedAI
                         if (Creature* cr = me->SummonCreature(NPC_MOLE_MACHINE_TRIGGER, x, y, 398.11f, 0.0f))
                             cr->CastSpell(cr, SPELL_SPAWN_MOLE_MACHINE, true);
                     }
-                    events.RepeatEvent(3000);
+                    // Modify event by # of players in area
+                    std::list<Player*> players;
+                    Acore::AnyPlayerInObjectRangeCheck checker(me, 60.f);
+                    Acore::PlayerListSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                    Cell::VisitWorldObjects(me, searcher, 60.f);
+
+                    uint32 playerCount = static_cast<uint32>(players.size()) - 1;
+                    float playerRate = std::max(uint32(1), uint32(5 - playerCount));
+                    uint32 delay = 3000 * playerRate;
+                    events.RepeatEvent(delay);
                     break;
                 }
             case EVENT_PRE_FINISH_ATTACK:
