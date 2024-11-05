@@ -3678,6 +3678,13 @@ Battleground.BerserkingBuffRespawn = 120
 Battleground.SpeedBuffRespawn = 150
 
 #
+#    Battleground.Override.LowLevels.MinPlayers
+#        Description: Overrides the minimum number of required players per team for all levels < MaxPlayerLevel
+#        Default:     0 (Disabled)
+
+Battleground.Override.LowLevels.MinPlayers = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -4613,13 +4620,19 @@ NpcBot.Mult.Damage.CryptLord         = 1.0
 
 #
 #    NpcBot.Mult.Damage.Levels
-#        Description: Multipliers for bots' damage by level: 0-9, 10-19, 20,29, ... , 70-79, 80+.
-#                     At least 9 values required.
+#    NpcBot.Mult.Healing.Levels
+#    NpcBot.Mult.HP.Levels
+#    NpcBot.Mult.MP.Levels
+#        Description: Multipliers for bots' damage/healing/hp/mp by level: 0-9,10-19,...,70-79,80+
+#                     At least 9 values required each.
 #        Default:     1.0
 #        Minimum:     0.1
 #        Maximum:    10.0
 
-NpcBot.Mult.Damage.Levels = 1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+NpcBot.Mult.Damage.Levels  = 1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+NpcBot.Mult.Healing.Levels = 1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+NpcBot.Mult.HP.Levels      = 1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+NpcBot.Mult.MP.Levels      = 1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
 
 #
 #    NpcBot.Enable.Dungeon
@@ -5020,6 +5033,17 @@ NpcBot.WanderingBots.Classes.SeaWitch.Enable          = 1
 NpcBot.WanderingBots.Classes.CryptLord.Enable         = 1
 
 #
+#    NpcBot.WanderingBots.SkipTarget.Questgiver
+#    NpcBot.WanderingBots.SkipTarget.Flightmaster
+#        Description: Make wandering bots skip certain npc types when selecting attack target.
+#        Note:        This option does not apply to npcs engaging the bot on their own accord.
+#        Default:     0 - (NpcBot.WanderingBots.SkipTarget.Questgiver)
+#                     0 - (NpcBot.WanderingBots.SkipTarget.Flightmaster)
+
+NpcBot.WanderingBots.SkipTarget.Questgiver   = 0
+NpcBot.WanderingBots.SkipTarget.Flightmaster = 0
+
+#
 #    NpcBot.HK.Enable
 #        Description: Count NPCBot kill at honor kill.
 #        Default:     1 - (Enabled)
@@ -5053,6 +5077,14 @@ NpcBot.HK.Achievements.Enable = 0
 NpcBot.HK.Rate.Honor = 1.0
 
 #
+#    NpcBot.Premade.Enable
+#        Description: Enable joining BG as premade group while having NPCBots in group.
+#        Note:        Queued premade groups do not trigger BG bots generation.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+NpcBot.Premade.Enable = 0
+
 # Customs
 #
 # Defaults

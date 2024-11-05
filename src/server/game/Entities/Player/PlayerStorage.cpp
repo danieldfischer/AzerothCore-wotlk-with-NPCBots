@@ -22,16 +22,13 @@
 #include "Battlefield.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
-#include "Channel.h"
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
 #include "Common.h"
-#include "ConditionMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
-#include "GameGraveyard.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -48,7 +45,6 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
-#include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "Player.h"
 #include "QueryHolder.h"
@@ -63,10 +59,8 @@
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "Transport.h"
-#include "UpdateData.h"
 #include "UpdateFieldFlags.h"
 #include "Util.h"
-#include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
 
@@ -78,6 +72,7 @@
 
 //npcbot
 #include "botdatamgr.h"
+#include "botmgr.h"
 //end npcbot
 
 /*********************************************************/
@@ -5653,6 +5648,11 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
         if (!HasAuraState((AuraStateType)m_spellInfo->CasterAuraState))
             aura->HandleAllEffects(itr->second, AURA_EFFECT_HANDLE_REAL, false);
     }
+
+    //npcbots: load BotManager data
+    _botMgr->LoadData();
+    //end npcbots
+
     return true;
 }
 
@@ -7154,8 +7154,9 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create, bool logo
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
 
-    //npcbot: save stored items
+    //npcbot: save player-related npcbot data
     BotDataMgr::SaveNpcBotStoredGear(GetGUID(), trans);
+    BotDataMgr::SaveNpcBotMgrData(GetGUID(), trans);
     //end npcbot
 }
 
