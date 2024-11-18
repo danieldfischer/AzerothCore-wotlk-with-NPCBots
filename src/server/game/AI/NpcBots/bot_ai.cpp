@@ -351,8 +351,6 @@ const std::string& bot_ai::LocalizedNpcText(Player const* forPlayer, uint32 text
 
 void bot_ai::InitializeAI()
 {
-    me->RefreshSwimmingFlag();
-
     if (!me->GetSpawnId() && !IsTempBot())
         SetWanderer();
 
@@ -595,7 +593,8 @@ void bot_ai::ResetBotAI(uint8 resetType)
     _botAwaitState = BOT_AWAIT_NONE;
     _reviveTimer = 0;
 
-    master = reinterpret_cast<Player*>(me);
+    if (resetType & BOTAI_RESET_MASK_RESET_MASTER)
+        master = reinterpret_cast<Player*>(me);
     if (resetType & BOTAI_RESET_MASK_ABANDON_MASTER)
         _ownerGuid = 0;
     if (resetType == BOTAI_RESET_INIT || resetType == BOTAI_RESET_LOGOUT)
@@ -3482,6 +3481,15 @@ void bot_ai::ReceiveEmote(Player* player, uint32 emote)
             std::ostringstream report;
             report << "Problems:";
 
+            if (_ownerGuid && !HasBotCommandState(BOT_COMMAND_UNBIND) && (master->ToUnit() == me->ToUnit() || _ownerGuid != master->GetGUID().GetRawValue()))
+            {
+                if (Player* real_owner = ObjectAccessor::FindPlayerByLowGUID(_ownerGuid))
+                {
+                    report << "\n  owner is in world by bot isn't owned by it";
+                    if (!SetBotOwner(real_owner))
+                        report << "\n    (failed to set owner to '" << real_owner->GetName() << "'!)";
+                }
+            }
             if ((me->HasUnitFlag(UNIT_FLAG_STUNNED) || me->HasUnitState(UNIT_STATE_STUNNED)) &&
                 !me->HasAuraType(SPELL_AURA_MOD_STUN))
             {
@@ -9112,7 +9120,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
             if (slot <= BOT_SLOT_RANGED && einfo->ItemEntry[slot] == item->GetEntry())
                 msg << " |cffe6cc80|h[!" << LocalizedNpcText(player, BOT_TEXT_VISUALONLY) << "!]|h|r";
 
-            msg << " GS: " << uint32(CalculateItemGearScore(me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot, item->GetTemplate()));
+            msg << " GS: " << uint32(CalculateItemGearScore(item->GetTemplate(), me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot));
 
             BotWhisper(msg.str(), player);
 
@@ -9199,7 +9207,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 if (visual_only)
                     str << " |cffe6cc80|h[!" << LocalizedNpcText(player, BOT_TEXT_VISUALONLY) << "!]|h|r";
 
-                str << " GS: " << uint32(CalculateItemGearScore(me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot, item->GetTemplate()));
+                str << " GS: " << uint32(CalculateItemGearScore(item->GetTemplate(), me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot));
 
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, str.str(), GOSSIP_SENDER_EQUIPMENT_INFO, action);
 
@@ -9264,7 +9272,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         {
                             std::ostringstream name;
                             _AddItemLink(player, item, name);
-                            name << " GS: " << uint32(CalculateItemGearScore(me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot, item->GetTemplate()));
+                            name << " GS: " << uint32(CalculateItemGearScore(item->GetTemplate(), me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot));
                             if (BotMgr::SendEquipListItems())
                                 BotWhisper(name.str(), player);
                             AddGossipItemFor(player, GOSSIP_ICON_CHAT, name.str(), GOSSIP_SENDER_EQUIP + slot, GOSSIP_ACTION_INFO_DEF + item->GetGUID().GetCounter());
@@ -9288,7 +9296,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                                 {
                                     std::ostringstream name;
                                     _AddItemLink(player, item, name);
-                                    name << " GS: " << uint32(CalculateItemGearScore(me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot, item->GetTemplate()));
+                                    name << " GS: " << uint32(CalculateItemGearScore(item->GetTemplate(), me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot));
                                     if (BotMgr::SendEquipListItems())
                                         BotWhisper(name.str(), player);
                                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, name.str(), GOSSIP_SENDER_EQUIP + slot, GOSSIP_ACTION_INFO_DEF + item->GetGUID().GetCounter());
@@ -9883,7 +9891,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 else if (GetBotClass() == BOT_CLASS_WARRIOR && _canEquip(proto, BOT_SLOT_MAINHAND, true))
                     slot = BOT_SLOT_MAINHAND;
 
-                name << " GS: " << uint32(CalculateItemGearScore(me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot, proto));
+                name << " GS: " << uint32(CalculateItemGearScore(proto, me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), slot));
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, name.str(), GOSSIP_SENDER_EQUIPMENT_BANK_WITHDRAW_ITEM, GOSSIP_ACTION_INFO_DEF + item->GetGUID().GetCounter());
             }
 
@@ -9946,7 +9954,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                             ItemTemplate const* set_item_proto = sObjectMgr->GetItemTemplate(itemset_items[i]); // validated at load
                             if (!available_items.contains(itemset_items[i]) || available_items.at(itemset_items[i]).empty())
                                 check_res = BotEquipResult::BOT_EQUIP_RESULT_FAIL_NO_ITEM;
-                            else if (!_canEquip(set_item_proto, i, true, *available_items.at(itemset_items[i]).cbegin()))
+                            else if (!_canEquip(set_item_proto, i, true, *available_items.at(itemset_items[i]).cbegin(), true))
                                 check_res = BotEquipResult::BOT_EQUIP_RESULT_FAIL_CANT_EQUIP;
                             else
                             {
@@ -9999,6 +10007,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         {
                             std::string err_code = Bcore::ToString(uint32(AsUnderlyingType(res)));
                             BotWhisper(LocalizedNpcText(player, BOT_TEXT_FAILED) + " -" + Bcore::ToString(uint32(i)) + " (" + err_code + ")");
+                            break;
                         }
                     }
                 }
@@ -10022,7 +10031,8 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
 
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_DEPOSIT_ITEMS), GOSSIP_SENDER_EQUIPMENT_BANK_DEPOSIT, GOSSIP_ACTION_INFO_DEF + 0);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_WITHDRAW_ITEMS), GOSSIP_SENDER_EQUIPMENT_BANK_WITHDRAW, GOSSIP_ACTION_INFO_DEF + 0);
-            AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_EQUIPMENT_SETS) + "...", GOSSIP_SENDER_EQUIPMENT_BANK_SETS_MENU, GOSSIP_ACTION_INFO_DEF + 0);
+            if (BotMgr::GetGearBankEquipmentSetsCount() > 0)
+                AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_EQUIPMENT_SETS) + "...", GOSSIP_SENDER_EQUIPMENT_BANK_SETS_MENU, GOSSIP_ACTION_INFO_DEF + 0);
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, LocalizedNpcText(player, BOT_TEXT_BACK), GOSSIP_SENDER_EQUIPMENT, GOSSIP_ACTION_INFO_DEF + 1);
             break;
         }
@@ -10092,7 +10102,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                     if (item)
                     {
                         _AddItemLink(player, item, ss);
-                        float item_gs = CalculateItemGearScore(me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), i, proto);
+                        float item_gs = CalculateItemGearScore(proto, me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), i);
                         gs_total += item_gs;
                         ss << " GS: " << uint32(item_gs);
                     }
@@ -10118,7 +10128,8 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
         {
             subMenu = true;
 
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, LocalizedNpcText(player, BOT_TEXT_CREATE) + "...", GOSSIP_SENDER_EQUIPMENT_BANK_SET_CREATE, GOSSIP_ACTION_INFO_DEF + 0, "", 0, true);
+            if (BotDataMgr::GetBotItemSetsCount(player->GetGUID()) < BotMgr::GetGearBankEquipmentSetsCount())
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, LocalizedNpcText(player, BOT_TEXT_CREATE) + "...", GOSSIP_SENDER_EQUIPMENT_BANK_SET_CREATE, GOSSIP_ACTION_INFO_DEF + 0, "", 0, true);
 
             //list existing sets
             if (BotItemSetsArray const* itemSets = BotDataMgr::GetBotItemSets(player->GetGUID()))
@@ -12209,7 +12220,7 @@ void bot_ai::_autoLootCreature(Creature* creature)
 //////////
 //EQUIPS//
 //////////
-bool bot_ai::_canUseOffHand(ItemTemplate const* with/* = nullptr*/) const
+bool bot_ai::_canUseOffHand(ItemTemplate const* with/* = nullptr*/, bool ignore_mh/* = false*/) const
 {
     //bm can on only equip in main hand
     if (_botclass == BOT_CLASS_BM)
@@ -12226,6 +12237,9 @@ bool bot_ai::_canUseOffHand(ItemTemplate const* with/* = nullptr*/) const
 
     //warrior can wield any offhand with titan's grip
     if (_botclass == BOT_CLASS_WARRIOR && me->GetLevel() >= 60 && GetSpec() == BOT_SPEC_WARRIOR_FURY)
+        return true;
+
+    if (ignore_mh)
         return true;
 
     ItemTemplate const* protoMH = with ? with : _equips[BOT_SLOT_MAINHAND] ? _equips[BOT_SLOT_MAINHAND]->GetTemplate() : nullptr;
@@ -12262,10 +12276,10 @@ bool bot_ai::_canUseRelic() const
 
 bool bot_ai::_canCombineWeapons(ItemTemplate const* mh, ItemTemplate const* oh) const
 {
-    return _canEquip(mh, BOT_SLOT_MAINHAND, true) && _canEquip(oh, BOT_SLOT_OFFHAND, true) && _canUseOffHand(mh);
+    return _canEquip(mh, BOT_SLOT_MAINHAND, true, nullptr, true) && _canEquip(oh, BOT_SLOT_OFFHAND, true, nullptr, true) && _canUseOffHand(mh);
 }
 
-bool bot_ai::_canEquip(ItemTemplate const* newProto, uint8 slot, bool ignoreItemLevel, Item const* newItem) const
+bool bot_ai::_canEquip(ItemTemplate const* newProto, uint8 slot, bool ignoreItemLevel, Item const* newItem/* = nullptr*/, bool ignore_combine/* = false*/) const
 {
     EquipmentInfo const* einfo = BotDataMgr::GetBotEquipmentInfo(me->GetEntry());
 
@@ -12283,7 +12297,7 @@ bool bot_ai::_canEquip(ItemTemplate const* newProto, uint8 slot, bool ignoreItem
                         return false;
     }
 
-    if (slot == BOT_SLOT_OFFHAND && !_canUseOffHand())
+    if (slot == BOT_SLOT_OFFHAND && !_canUseOffHand(nullptr, ignore_combine))
         return false;
 
     //level requirements
@@ -14355,7 +14369,7 @@ float bot_ai::_getItemGearStatScore(ItemTemplate const* iproto, uint8 forslot, I
     for (uint8 i = 0; i != MAX_BOT_ITEM_MOD; ++i)
         itemScore += istats[i] * _getStatScore(i);
 
-    float itemGearScore = CalculateItemGearScore(me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), forslot, iproto);
+    float itemGearScore = CalculateItemGearScore(iproto, me->GetEntry(), me->GetLevel(), GetBotClass(), GetSpec(), forslot);
     itemScore += itemGearScore;
 
     //BOT_LOG_ERROR("scripts", "_getItemGearScore total score %.3f", itemScore);
@@ -16090,6 +16104,8 @@ void bot_ai::JustEngagedWith(Unit* u)
     AbortTeleport();
 
     ResetChase(u);
+
+    me->RefreshSwimmingFlag();
 
     if (IsLastOrder(BOT_ORDER_PULL, 0, u->GetGUID()))
         CompleteOrder(_orders.front());
@@ -19006,6 +19022,9 @@ bool bot_ai::FinishTeleport(bool reset)
         me->BotStopMovement();
         if (reset)
             this->Reset();
+
+        me->RefreshSwimmingFlag();
+
         //bot->SetAI(oldAI);
         //me->IsAIEnabled = true;
         canUpdate = true;
