@@ -1629,10 +1629,6 @@ void BotMgr::_teleportBot(Creature* bot, Map* newMap, float x, float y, float z,
 
     BotLogger::Log(NPCBOT_LOG_TELEPORT_START, bot, bot->IsInGrid(), bot->IsWandererBot(), botai->CanAppearInWorld(), newMap->GetId(), bool(reset));
 
-    if (Map* bmap = bot->FindMap())
-        if (bmap->GetEntry()->Instanceable() && bot->IsInGrid())
-            bmap->RemoveFromMap(bot, false);
-
     BotMgr::AddDelayedTeleportCallback([bot, botai, newMap, x, y, z, ori, quick, reset]() {
         if (bot->GetVehicle())
             bot->ExitVehicle();
@@ -1723,7 +1719,8 @@ void BotMgr::_teleportBot(Creature* bot, Map* newMap, float x, float y, float z,
                 if (newMap != mymap)
                 {
                     //we teleport from base non-instanced map which normally doesn't exist
-                    ASSERT(mymap->GetPlayersCountExceptGMs() == 0);
+                    if (mymap)
+                        ASSERT(mymap->GetPlayersCountExceptGMs() == 0);
 
                     bg->AddBot(bot);
                 }
@@ -1852,6 +1849,9 @@ void BotMgr::RemoveBot(ObjectGuid guid, uint8 removetype)
 
     Creature* bot = itr->second;
     CleanupsBeforeBotDelete(guid, removetype);
+
+    if (_owner->GetSession()->PlayerLogout() && bot->IsInGrid() && bot->FindMap() && bot->FindMap()->GetEntry()->Instanceable())
+        bot->FindMap()->RemoveFromMap(bot, false);
 
     ////remove control bar
     //if (GetNpcBotsCount() <= 1 && !_owner->GetPetGUID() && _owner->m_Controlled.empty())
@@ -2801,6 +2801,10 @@ void BotMgr::SetBotAllowCombatPositioning(bool allow)
     allow ? _data->RemoveFlag(NPCBOT_MGR_FLAG_DISABLE_COMBAT_POSITIONING) : _data->SetFlag(NPCBOT_MGR_FLAG_DISABLE_COMBAT_POSITIONING);
 }
 
+bool BotMgr::GetBotsHidden() const
+{
+    return _data->HasFlag(NPCBOT_MGR_FLAG_HIDE_BOTS);
+}
 void BotMgr::SetBotsHidden(bool hidden)
 {
     hidden ? _data->SetFlag(NPCBOT_MGR_FLAG_HIDE_BOTS) : _data->RemoveFlag(NPCBOT_MGR_FLAG_HIDE_BOTS);
