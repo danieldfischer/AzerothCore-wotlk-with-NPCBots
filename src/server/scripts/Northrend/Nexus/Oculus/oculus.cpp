@@ -38,7 +38,6 @@ enum Drakes
 
     // Centrifuge Constructs
     SPELL_EMPOWERING_BLOWS                  = 50044,
-    H_SPELL_EMPOWERING_BLOWS                = 59213,
 
     SPELL_AMBER_SHOCK_CHARGE                = 49836,
     SPELL_RUBY_EVASIVE_CHARGES              = 50241,
@@ -395,7 +394,7 @@ public:
             }
             else
             {
-                me->DespawnOrUnsummon(2050);
+                me->DespawnOrUnsummon(2050ms);
                 me->SetOrientation(2.5f);
                 me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                 Position pos = me->GetPosition();
@@ -458,7 +457,7 @@ public:
                     }
                     else
                     {
-                        me->DespawnOrUnsummon(2050);
+                        me->DespawnOrUnsummon(2050ms);
                         me->SetOrientation(2.5f);
                         me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                         Position pos = me->GetPosition();
@@ -475,7 +474,7 @@ public:
             {
                 if (despawnTimer >= 5000)
                 {
-                    me->DespawnOrUnsummon(2050);
+                    me->DespawnOrUnsummon(2050ms);
                     me->SetOrientation(2.5f);
                     Position pos = me->GetPosition();
                     Position offset = { 10.0f, 10.0f, 12.0f, 0.0f };
@@ -504,7 +503,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            DoCast(IsHeroic() ? H_SPELL_EMPOWERING_BLOWS : SPELL_EMPOWERING_BLOWS);
+            DoCast(SPELL_EMPOWERING_BLOWS);
         }
 
         void UpdateAI(uint32 /*diff*/) override
