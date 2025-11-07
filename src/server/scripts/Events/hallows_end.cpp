@@ -319,20 +319,22 @@ class spell_hallows_end_base_fire : public AuraScript
 
     void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
     {
+        // Note: increased amount max to slow spread but also req a bit more effort to put out to balance slowing
         // can start from 0
         int32 amount = aurEff->GetAmount();
 
-        if (amount < 3)
-            amount++;
-        else if (aurEff->GetTickNumber() % 3 != 2)
+        if (aurEff->GetTickNumber() % 9 != 2)  // slow the effect
             return;
+
+        if (amount < 5)
+            amount++;
 
         aurEff->SetAmount(amount);
         if (Unit* owner = GetUnitOwner())
         {
-            if (amount <= 3)
+            if (amount <= 5)
                 owner->SetObjectScale(amount / 2.0f);
-            if (amount >= 3)
+            if (amount >= 5)
                 owner->CastSpell(owner, SPELL_SPREAD_FIRE, true);
         }
     }
@@ -787,6 +789,8 @@ struct npc_hallows_end_soh : public ScriptedAI
 
     void CastFires(bool intial)
     {
+        // Note: The balancing checks here just limit the buildings for 1-2 players and don't really make it easier. Some towns much harder than others.
+
         std::vector<Unit*> tmpList;
         for (ObjectGuid const& guid : unitList)
         {
@@ -831,7 +835,7 @@ struct npc_hallows_end_soh : public ScriptedAI
         uint32 sizeCount = (playerCount / 3) + 1;
         if (intial && playerCount > 0)
         {
-            sizeCount += playerCount % 2;
+            sizeCount += playerCount % 3;
         }
 
         Acore::Containers::RandomResize(tmpList, sizeCount);
