@@ -402,8 +402,8 @@ struct npc_dark_iron_attack_generator : public ScriptedAI
 
                     uint32 playerCount = static_cast<uint32>(players.size()) - 1;
                     float playerRate = std::max(uint32(1), uint32(5 - playerCount));
-                    uint32 delay = 3000 * playerRate;
-                    events.Repeat(delay);
+                    uint32 delay = (3000 * playerRate);
+                    events.Repeat(std::chrono::milliseconds(delay));
                     break;
                 }
             case EVENT_PRE_FINISH_ATTACK:
