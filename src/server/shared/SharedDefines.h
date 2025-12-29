@@ -79,7 +79,7 @@ enum Races
     RACE_GOBLIN             = 9,  // TITLE Goblin
     RACE_BLOODELF           = 10, // TITLE Blood Elf
     RACE_DRAENEI            = 11, //, TITLE Draenei
-    RACE_WORGEN = 12  // TITLE Worgen
+    RACE_WORGEN             = 12  // TITLE Worgen
     //RACE_FEL_ORC        = 12,
     //RACE_NAGA           = 13,
     //RACE_BROKEN         = 14,
