@@ -1680,14 +1680,10 @@ void BotMgr::_teleportBot(Creature* bot, Map* newMap, float x, float y, float z,
                     if (InstanceScript* iscr = bot->GetBotOwner()->GetInstanceScript())
                         iscr->OnNPCBotLeave(bot);
 
-                mymap->RemoveObjectFromMapUpdateList(bot);
                 bot->RemoveFromWorld();
             }
 
-            ASSERT(bot->GetGUID());
-
             bot->RemoveAllGameObjects();
-
             bot->m_Events.KillAllEvents(false);
             bot->CombatStop();
             bot->ClearComboPoints();
@@ -1835,11 +1831,7 @@ void BotMgr::CleanupsBeforeBotDelete(Creature* bot)
 
     Map* map = bot->FindMap();
     if (!map || map->IsDungeon() || bot->IsTempBot())
-    {
-        if (map)
-            map->RemoveObjectFromMapUpdateList(bot);
         bot->RemoveFromWorld();
-    }
 }
 
 void BotMgr::RemoveAllBots(uint8 removetype)
