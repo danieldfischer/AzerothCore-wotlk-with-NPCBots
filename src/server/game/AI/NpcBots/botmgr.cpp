@@ -1818,7 +1818,6 @@ void BotMgr::CleanupsBeforeBotDelete(Creature* bot)
     bot->GetBotAI()->UnsummonAll(false);
     bot->AttackStop();
     bot->CombatStopWithPets(true);
-    bot->getHostileRefMgr().deleteReferences();
 
     //bot->SetOwnerGUID(ObjectGuid::Empty);
     //_owner->m_Controlled.erase(bot);
