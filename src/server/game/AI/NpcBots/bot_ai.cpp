@@ -13147,9 +13147,9 @@ bool bot_ai::_isItemFitForWanderingBot(uint8 slot, ItemTemplate const* proto) co
 
     if (me->GetLevel() >= DEFAULT_MAX_LEVEL && me->GetMap()->IsBattlegroundOrArena() && Rand() < 50)
     {
-        if (Rand() < BotMgr::GetNpcBotPvPItemLevel245Chance() && proto->ItemLevel < 245)
+        if (Rand() < BotCfg::GetNpcBotPvPItemLevel245Chance() && proto->ItemLevel < 245)
             return false;
-        if (Rand() < BotMgr::GetNpcBotPvPItemLevel264Chance() && proto->ItemLevel < 264)
+        if (Rand() < BotCfg::GetNpcBotPvPItemLevel264Chance() && proto->ItemLevel < 264)
             return false;
 
         switch (slot)

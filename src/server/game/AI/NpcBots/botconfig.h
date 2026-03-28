@@ -133,6 +133,13 @@ public:
     static std::string GetNpcBotCostStr(uint8 level, uint8 botclass);
 
     static bool IsMapAllowedForBots(Map const* map);
+
+    // TFE
+    static uint8 GetNpcBotPvPItemChance();
+    static uint8 GetNpcBotPvPItemLevel245Chance();
+    static uint8 GetNpcBotPvPItemLevel264Chance();
+    //
+
 private:
     static uint32 _normalizedCostForLevel(uint32 cost_base, uint8 bot_class, uint8 level);
 };

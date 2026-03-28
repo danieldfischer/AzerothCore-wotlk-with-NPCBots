@@ -41,6 +41,11 @@ uint8 _dpsTargetIconFlags;
 uint8 _rangedDpsTargetIconFlags;
 uint8 _noDpsTargetIconFlags;
 uint8 _npcBotOwnerExpireMode;
+// TFE
+uint8 _pvpitem;
+uint8 _pvpitem_level245;
+uint8 _pvpitem_level264;
+//
 int32 _botInfoPacketsLimit;
 uint32 _gearBankCapacity;
 uint32 _gearBankEquipmentSetsCount;
@@ -446,6 +451,9 @@ private:
         _bothk_message_enable           = sConfigMgr->GetBoolDefault("NpcBot.HK.Message.Enable", false);
         _bothk_achievements_enable      = sConfigMgr->GetBoolDefault("NpcBot.HK.Achievements.Enable", false);
         _bothk_rate_honor               = sConfigMgr->GetFloatDefault("NpcBot.HK.Rate.Honor", 1.0);
+        _pvpitem                        = sConfigMgr->GetIntDefault("NpcBot.PvPItem.Chance", 20);
+        _pvpitem_level245               = sConfigMgr->GetIntDefault("NpcBot.PvPItem.Level245.Chance", 20);
+        _pvpitem_level264               = sConfigMgr->GetIntDefault("NpcBot.PvPItem.Level264.Chance", 10);
 
         if (reload)
             BotLogger::Log(NPCBOT_LOG_CONFIG_RELOAD, uint32(0));
@@ -1343,6 +1351,21 @@ uint32 BotCfg::_normalizedCostForLevel(uint32 cost_base, uint8 bot_class, uint8 
     }
 
     return cost;
+}
+
+uint8 BotCfg::GetNpcBotPvPItemChance()
+{
+    return _pvpitem;
+}
+
+uint8 BotCfg::GetNpcBotPvPItemLevel245Chance()
+{
+    return _pvpitem_level245;
+}
+
+uint8 BotCfg::GetNpcBotPvPItemLevel264Chance()
+{
+    return _pvpitem_level264;
 }
 
 void AddSC_botconfig_scripts()
