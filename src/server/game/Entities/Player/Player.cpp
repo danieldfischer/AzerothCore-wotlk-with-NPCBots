@@ -2375,8 +2375,11 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
         {
             if (player->HaveBot())
             {
-                //remove npcbots and set up new group if needed
-                player->GetBotMgr()->RemoveAllBotsFromGroup();
+                bool lfg_group = group->isLFGGroup();
+                    //remove npcbots and set up new group if needed
+                    player->GetBotMgr()->RemoveAllBotsFromGroup();
+                if (lfg_group)
+                    player->GetBotMgr()->RemoveAllSummonedBots();
                 group = player->GetGroup();
                 if (!group)
                     return; //group has been disbanded
@@ -13216,7 +13219,7 @@ PartyResult Player::CanUninviteFromGroup(ObjectGuid targetPlayerGUID) const
         if (state == lfg::LFG_STATE_FINISHED_DUNGEON)
             return ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE;
 
-        if (grp->isRollLootActive())
+        if (grp->isRollLootActive() && ObjectAccessor::FindConnectedPlayer(targetPlayerGUID))
             return ERR_PARTY_LFG_BOOT_LOOT_ROLLS;
 
         /// @todo: Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
