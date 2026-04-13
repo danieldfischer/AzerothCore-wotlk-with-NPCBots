@@ -1297,6 +1297,10 @@ public:
     void SetCreator(Unit* creator);
     Unit* GetCreator() const { return m_creator; }
     Unit* m_creator = nullptr;
+
+    void SetLastSpellGoTime(TimePoint time_point) { last_spell_go_time_point = time_point; }
+    TimePoint GetLastSpellGoTime() const { return last_spell_go_time_point; }
+    TimePoint last_spell_go_time_point{};
     //end npcbot
 
     [[nodiscard]] uint32 GetMeleeCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 2.2f, 33.0f, damage); }
@@ -1676,6 +1680,7 @@ public:
     */
     bool IsImmunedToSpell(SpellInfo const* spellInfo, uint32 effectMask, Unit const* caster = nullptr) const;
     //end npcbot
+    bool IgnoresSchoolImmunityFromFriendlyCaster(Unit const* caster, uint32 immunityAuraId, SpellInfo const* immunitySpellInfo) const;
     [[nodiscard]] bool IsImmunedToDamage(SpellSchoolMask schoolMask) const;
     [[nodiscard]] bool IsImmunedToDamage(Unit const* caster, SpellInfo const* spellInfo) const;
     [[nodiscard]] bool IsImmunedToSchool(SpellSchoolMask schoolMask) const;
