@@ -54,9 +54,11 @@ CMakeLists.txt.user
 *.LOCAL.*
 
 #
-# AI tools
+# Claude
 #
-.claude
+.claude/worktrees
+.claude/settings.local.json
+.claude/plans/**
 
 #
 # IDE & other software
@@ -113,5 +115,6 @@ local.properties
 # ==================
 
 #NPCBots
+!/data/sql/custom/db_auth/
 !/data/sql/custom/db_characters/
 !/data/sql/custom/db_world/

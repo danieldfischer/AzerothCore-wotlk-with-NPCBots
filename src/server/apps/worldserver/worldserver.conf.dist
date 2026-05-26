@@ -622,6 +622,15 @@ Allow.IP.Based.Action.Logging = 0
 LogSpamReports = 1
 
 #
+#    ChatLog.Enable
+#        Description: Enable or disable chat logging (chat_log.cpp).
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+ChatLog.Enable = 0
+
+#
 #  Appender config values: Given an appender "name"
 #    Appender.name
 #        Description: Defines 'where to log'.
@@ -2609,6 +2618,14 @@ DurabilityLoss.InPvP = 0
 DurabilityLoss.OnDeath = 10
 
 #
+#    DurabilityLoss.OnSpiritResurrect
+#        Description: Durability loss percentage on spirit healer resurrection. Does not effect PvP
+#                     spirit healers.
+#        Default:     25
+
+DurabilityLoss.OnSpiritResurrect = 25
+
+#
 #    DurabilityLossChance.Damage
 #        Description: Chance to lose durability on one equipped item from damage.
 #        Default:     0.5 - (100/0.5 = 200, Each 200 damage one equipped item will use durability)
@@ -3370,6 +3387,16 @@ DungeonAccessRequirements.OptionalStringID = 0
 #                     1 - Enabled
 
 JoinBGAndLFG.Enable = 0
+
+#
+#     LFG.MailItemOnFullInventory
+#        Description: When a player wins a group roll but their inventory is full, mail
+#                     the item to them instead of leaving it on the corpse.
+#        Default:     0 - Disabled
+#                     1 - Only in LFG/RDF groups
+#                     2 - In all group types
+
+LFG.MailItemOnFullInventory = 0
 
 #
 #     DungeonFinder.OptionsMask
@@ -4361,14 +4388,6 @@ AllowTwoSide.Interaction.Calendar = 0
 AllowTwoSide.Interaction.Chat = 0
 
 #
-#    AllowTwoSide.Interaction.Emote
-#        Description: Allow emote messages between factions (e.g. "/e looks into the sky")
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.Interaction.Emote = 0
-
-#
 #    AllowTwoSide.Interaction.Channel
 #        Description: Allow channel chat between factions.
 #        Default:     0 - (Disabled)
@@ -4408,38 +4427,6 @@ AllowTwoSide.Interaction.Arena = 0
 #                     1 - (Enabled)
 
 AllowTwoSide.Interaction.Auction = 0
-
-#
-#    AllowTwoSide.Interaction.Mail
-#        Description: Allow sending mails between factions.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.Interaction.Mail = 0
-
-#
-#    AllowTwoSide.WhoList
-#        Description: Show characters from both factions in the /who list.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.WhoList = 0
-
-#
-#    AllowTwoSide.AddFriend
-#        Description: Allow adding friends from other faction the friends list.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.AddFriend = 0
-
-#
-#    AllowTwoSide.Trade
-#        Description: Allow trading between factions.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.Trade = 0
 
 #
 #    TalentsInspecting
@@ -5335,6 +5322,18 @@ NpcBot.EnrageOnDismiss = 1
 #        Default:     0 - (NpcBot.DungeonBots.Enable)
 
 NpcBot.DungeonBots.Enable = 0
+
+#
+#    NpcBot.DungeonBots.MaxItemLevel.Ratio
+#        Description: Maximum item ilevel to generate for dungeon bots per level bracket compared
+#                     to dungeon max item level.
+#        Note:        If item generation attempt fails becuse of item ilevel restriction
+#                     the item will be generated again with this restriction ignored
+#        Example:     0,0,0,0,0,0,0,0,90 makes dungeon bots for Halls of Reflection only generate
+#                     items of ilevel 198N/209H or less instead of default max 219/232
+#        Default:     0,0,0,0,0,0,0,0,0
+
+NpcBot.DungeonBots.MaxItemLevel.Ratio = 0,0,0,0,0,0,0,0,0
 
 #
 #    NpcBot.WanderingBots.Continents.Count
