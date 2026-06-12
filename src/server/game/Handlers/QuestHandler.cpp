@@ -484,6 +484,7 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 }
 
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
+// Note: This doesn't appear to be called by repeatable quests, rendering the AV section useless. Added to PlayerQuest.cpp
 {
     uint32 questId;
     ObjectGuid guid;
@@ -510,9 +511,12 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         }
 
         if (Battleground* bg = _player->GetBattleground())
+        {
             if (bg->GetBgTypeID(true) == BATTLEGROUND_AV)
+            {
                 bg->ToBattlegroundAV()->HandleQuestComplete(questId, _player);
-
+            }
+        }
         if (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE)
         {
             if (quest->IsRepeatable())

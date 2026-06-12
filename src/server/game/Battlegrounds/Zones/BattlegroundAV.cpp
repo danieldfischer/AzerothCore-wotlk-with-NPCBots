@@ -282,6 +282,7 @@ void BattlegroundAV::HandleBotKillUnit(Creature* killer, Creature* victim)
 
 void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
 {
+// TODO: create constants for the reinforcement values, or shift to basing it off quest difficulty.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;//maybe we should log this, cause this must be a cheater or a big bug
     TeamId teamId = player->GetTeamId();
@@ -293,7 +294,9 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
         case AV_QUEST_A_SCRAPS2:
         case AV_QUEST_H_SCRAPS1:
         case AV_QUEST_H_SCRAPS2:
-            m_Team_QuestStatus[teamId][0] += 20;
+            LOG_DEBUG("bg.battleground", "BG_AV Quest {} completed adding reinforcements", questid);
+            UpdateScore(teamId,5);
+            m_Team_QuestStatus[teamId][0] += 250;   // was 20
             if (m_Team_QuestStatus[teamId][0] == 500 || m_Team_QuestStatus[teamId][0] == 1000 || m_Team_QuestStatus[teamId][0] == 1500) //25, 50, 75 turn ins
             {
                 LOG_DEBUG("bg.battleground", "BG_AV Quest {} completed starting with unit upgrading..", questid);
@@ -308,6 +311,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_COMMANDER1:
         case AV_QUEST_H_COMMANDER1:
+            UpdateScore(teamId, 5);
             m_Team_QuestStatus[teamId][1]++;
             RewardReputationToTeam(teamId, uint32(1 * _avReputationRate), teamId);
             if (m_Team_QuestStatus[teamId][1] == 30)
@@ -315,6 +319,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_COMMANDER2:
         case AV_QUEST_H_COMMANDER2:
+            UpdateScore(teamId, 10);
             m_Team_QuestStatus[teamId][2]++;
             RewardReputationToTeam(teamId, uint32(1 * _avReputationRate), teamId);
             if (m_Team_QuestStatus[teamId][2] == 60)
@@ -322,6 +327,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_COMMANDER3:
         case AV_QUEST_H_COMMANDER3:
+            UpdateScore(teamId, 25);
             m_Team_QuestStatus[teamId][3]++;
             RewardReputationToTeam(teamId, uint32(1 * _avReputationRate), teamId);
             if (m_Team_QuestStatus[teamId][3] == 120)
@@ -329,16 +335,19 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_BOSS1:
         case AV_QUEST_H_BOSS1:
+            UpdateScore(teamId, 9);
             m_Team_QuestStatus[teamId][4] += 9; //you can turn in 10 or 1 item..
             [[fallthrough]];
         case AV_QUEST_A_BOSS2:
         case AV_QUEST_H_BOSS2:
+            UpdateScore(teamId, 1);
             m_Team_QuestStatus[teamId][4]++;
             if (m_Team_QuestStatus[teamId][4] >= 200)
                 LOG_DEBUG("bg.battleground", "BG_AV Quest {} completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_NEAR_MINE:
         case AV_QUEST_H_NEAR_MINE:
+            UpdateScore(teamId, 5);
             m_Team_QuestStatus[teamId][5]++;
             if (m_Team_QuestStatus[teamId][5] == 28)
             {
@@ -350,6 +359,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_OTHER_MINE:
         case AV_QUEST_H_OTHER_MINE:
+            UpdateScore(teamId, 20);
             m_Team_QuestStatus[teamId][6]++;
             if (m_Team_QuestStatus[teamId][6] == 7)
             {
@@ -361,6 +371,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_RIDER_HIDE:
         case AV_QUEST_H_RIDER_HIDE:
+            UpdateScore(teamId, 10);
             m_Team_QuestStatus[teamId][7]++;
             if (m_Team_QuestStatus[teamId][7] == 25)
             {
@@ -372,6 +383,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_RIDER_TAME:
         case AV_QUEST_H_RIDER_TAME:
+            UpdateScore(teamId, 3);  // quick quest, but also tame doesn't work
             m_Team_QuestStatus[teamId][8]++;
             if (m_Team_QuestStatus[teamId][8] == 25)
             {
@@ -392,6 +404,8 @@ void BattlegroundAV::UpdateScore(TeamId teamId, int16 points)
 {
     if (BG_AV_SCORE_INITIAL_POINTS == 0)
         return; // don't update teamscores if reinforcements are disabled
+
+    LOG_DEBUG("bg.battleground", "Adding {} reinforcements for team {}", points, teamId);
 
     //note: to remove reinforcementpoints points must be negative, for adding reinforcements points must be positive
     m_Team_Scores[teamId] += points;

@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Battleground.h"
+#include "BattlegroundAV.h"
 #include "CreatureAI.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
@@ -875,6 +877,14 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // Xinef: area auras may change on quest completion!
     UpdateZoneDependentAuras(GetZoneId());
     UpdateAreaDependentAuras(GetAreaId());
+
+    if (Battleground* bg = GetBattleground())
+    {
+        if (bg->GetBgTypeID(true) == BATTLEGROUND_AV)
+        {
+            bg->ToBattlegroundAV()->HandleQuestComplete(quest_id, this);
+        }
+    }
 
     sScriptMgr->OnPlayerCompleteQuest(this, quest);
 }
