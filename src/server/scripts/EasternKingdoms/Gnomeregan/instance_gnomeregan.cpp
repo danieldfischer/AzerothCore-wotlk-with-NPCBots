@@ -98,6 +98,8 @@ public:
 enum eKernobee
 {
     QUEST_A_FINE_MESS           = 2904,
+    QUEST_A_FINE_MESS_H         = 90228,
+
 };
 
 class npc_kernobee : public CreatureScript
@@ -112,7 +114,7 @@ public:
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_A_FINE_MESS)
+        if (quest->GetQuestId() == QUEST_A_FINE_MESS || quest->GetQuestId() == QUEST_A_FINE_MESS_H)
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
             creature->AI()->SetGUID(player->GetGUID(), 0);
@@ -145,7 +147,10 @@ public:
                 if (me->GetDistance(-332.2f, -2.8f, -152.8f) < 5.0f)
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                        player->GroupEventHappens(QUEST_A_FINE_MESS, me);
+                        if (player->GetMap()->IsHeroic())
+                            player->GroupEventHappens(QUEST_A_FINE_MESS_H, me);
+                        else
+                            player->GroupEventHappens(QUEST_A_FINE_MESS, me);
                     me->DespawnOrUnsummon(1s);
                 }
             }
